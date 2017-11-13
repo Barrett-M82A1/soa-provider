@@ -1,0 +1,6 @@
+{
+
+    "require": {
+        "topthink/think-orm": "^0.2.0"
+    }
+}
