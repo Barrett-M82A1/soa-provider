@@ -3,9 +3,6 @@
  * HTTP服务器 - 心跳检测与基础信息查询
  */
 
-//服务配置
-$config = include __DIR__."/config/config.php";
-
 //启动HTTP服务
 $http = new swoole_http_server("127.0.0.1", 80);
 
@@ -41,6 +38,9 @@ function onRequest($request, $response){
  */
 function queryService()
 {
+    //服务配置
+    $config = include __DIR__."/../config/config.php";
+
     $list = array_keys($config['service']['name']);
 
     $res = [];
