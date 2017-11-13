@@ -4,10 +4,10 @@
  */
 
 //composer自动加载
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 //服务配置
-$config = include __DIR__."/config/config.php";
+$config = include __DIR__."/../config/config.php";
 
 //启动服务
 $server = new \swoole_server($config['ip'], $config['port']);
@@ -34,6 +34,7 @@ $server->start();
 function onStart(\swoole_server $server)
 {
     #这里还要实现配置中心选择的算法
+    $config = include __DIR__."/../config/config.php";
 
     //服务注册
     $client = new \swoole_client(SWOOLE_SOCK_TCP);
