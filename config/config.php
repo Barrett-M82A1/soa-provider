@@ -52,13 +52,6 @@ return [
         ],
     ],
 
-    //需要消费的服务
-    'consumer'  =>  [
-        'MarketService',
-        'ScoreService',
-        'MessageService'
-    ],
-
     //swoole配置
     'swoole'    =>  [
         'worker_num'            => 1,
