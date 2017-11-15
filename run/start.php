@@ -10,20 +10,12 @@ require_once __DIR__.'/../vendor/autoload.php';
 $config = include __DIR__."/../config/config.php";
 
 //启动服务
-$server = new \swoole_server($config['ip'], $config['port']);
+$server = new \swoole_server('0.0.0.0',$config['service']['port']);
 
-$server->set($config['swoole']);
-
-$server->on('connect', function ($server, $fd) {
-    echo "connection open: {$fd}\n";
-});
-
-$server->on('start','onStart');
-$server->on('receive','onReceive');
-
-$server->on('close', function ($server, $fd) {
-    echo "connection close: {$fd}\n";
-});
+$server->on('Start','onStart');
+$server->on('Connect','onConnect');
+$server->on('Receive','onReceive');
+$server->on('Close','onClose');
 
 $server->start();
 
@@ -44,8 +36,21 @@ function onStart(\swoole_server $server)
     $msg = json_encode(array_merge($config['service'],['method'=>'register']));
     $str = pack('N', strlen($msg)) . $msg;
 
+    echo "Provider : Registering services to MySoa :)\n";
+
     //提交注册
     $client->send($str);
+}
+
+/**
+ * 建立连接
+ * @param swoole_server $server
+ * @param $fd
+ * @param $from_id
+ */
+function onConnect(\swoole_server $server, $fd, $from_id)
+{
+    echo "Provider : Connection open -> {$fd}\n";
 }
 
 /**
@@ -57,15 +62,26 @@ function onStart(\swoole_server $server)
  */
 function onReceive(\swoole_server $server, int $fd, int $reactor_id, string $data)
 {
-    //反序列化参数
+    // 反序列化请求参数
     $param = json_decode(substr($data, 4),true);
 
-    #根据参数去调用相关logic
+    // 根据参数去调用相关logic
+    require_once __DIR__."/../service/".$param['service'].".php";
 
-    //输出结果
-    $response = json_encode(['uid' => 1000]);
-    $len = strlen($response);
-
-    $content = pack('N', $len) . $response;
+    $Service = new $param['service']();
+    $result = $Service->{$param['method']}($param['param']);
+    $response = json_encode($result);
+    $content = pack('N', $result) . $response;
     $server->send($fd, $content);
+}
+
+/**
+ * 关闭链接
+ * @param swoole_server $server
+ * @param int $fd
+ * @param int $reactorId
+ */
+function onClose(\swoole_server $server, int $fd, int $reactorId)
+{
+    echo "Provider : Connection close -> {$fd}\n";
 }

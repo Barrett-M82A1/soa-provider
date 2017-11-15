@@ -6,12 +6,8 @@
 class StudentUserService
 {
     //业务实现
-    public static function isStudent($uid){
-        return true;
+    public function isStudent($uid){
+        return 'world';
     }
 
-    //业务实现
-    public static function updateSchoolInfo($uid,$school){
-        return true;
-    }
 }
